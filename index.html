@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>The Anatomy of Tornado Alley</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Mapbox GL JS -->
+  <link
+    href="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css"
+    rel="stylesheet"
+  />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.js"></script>
+
+  <!-- D3 -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <div id="sidebar">
+      <h1>The Anatomy of Tornado Alley</h1>
+      <p class="subtitle">
+        Explore where and when tornadoes have struck the U.S. (1950–2025).
+      </p>
+
+      <!-- Year controls -->
+      <div class="control-group">
+        <label for="year-slider">
+          Year: <span id="year-label"></span>
+        </label>
+
+        <input
+          type="range"
+          id="year-slider"
+          min="1950"
+          max="2025"
+          value="2000"
+        />
+
+        <div class="year-input-row">
+          <label for="year-input">Go to year:</label>
+          <input
+            type="number"
+            id="year-input"
+            min="1950"
+            max="2025"
+            value="2000"
+          />
+        </div>
+
+        <div class="play-controls">
+          <button id="play-btn">▶ Play</button>
+          <button id="pause-btn" disabled>⏸ Pause</button>
+        </div>
+      </div>
+
+      <!-- EF filters -->
+      <div class="control-group">
+        <span>EF intensity filter:</span>
+        <div id="ef-filters">
+          <label><input type="checkbox" value="0" checked /> EF0</label>
+          <label><input type="checkbox" value="1" checked /> EF1</label>
+          <label><input type="checkbox" value="2" checked /> EF2</label>
+          <label><input type="checkbox" value="3" checked /> EF3</label>
+          <label><input type="checkbox" value="4" checked /> EF4</label>
+          <label><input type="checkbox" value="5" checked /> EF5</label>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div id="legend">
+        <h3>EF scale color key</h3>
+        <div class="legend-row">
+          <span class="swatch ef0"></span> EF0
+        </div>
+        <div class="legend-row">
+          <span class="swatch ef1"></span> EF1
+        </div>
+        <div class="legend-row">
+          <span class="swatch ef2"></span> EF2
+        </div>
+        <div class="legend-row">
+          <span class="swatch ef3"></span> EF3
+        </div>
+        <div class="legend-row">
+          <span class="swatch ef4"></span> EF4
+        </div>
+        <div class="legend-row">
+          <span class="swatch ef5"></span> EF5
+        </div>
+      </div>
+    </div>
+
+    <div id="map"></div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
