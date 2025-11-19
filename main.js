@@ -18,9 +18,6 @@ const map = new mapboxgl.Map({
 
 let tornadoData = null;
 
-// --- 2. Load GeoJSON and add layers -------------------------------
-
-// --- 2. Load GeoJSON and add layers -------------------------------
 
 Promise.all([d3.json("data/tornado_points.geojson")]).then(([geojson]) => {
   tornadoData = geojson;
@@ -58,7 +55,7 @@ Promise.all([d3.json("data/tornado_points.geojson")]).then(([geojson]) => {
       source: "tornadoes",
       minzoom: 5,
       paint: {
-        "circle-radius": 3,
+        "circle-radius": 5,
         "circle-opacity": 0.75,
         "circle-stroke-width": 0.4,
         "circle-stroke-color": "#000",
@@ -82,13 +79,13 @@ Promise.all([d3.json("data/tornado_points.geojson")]).then(([geojson]) => {
 const hoverPopup = new mapboxgl.Popup({
   closeButton: false,
   closeOnClick: false,
-  className: "tornado-tooltip" // optional: for custom CSS styling
+  className: "tornado-tooltip" // 
 });
 
 let isHoveringTornado = false;
 
 map.on("mousemove", (e) => {
-  // Hitbox around cursor so it's not too finicky
+  
   const bbox = [
     [e.point.x - 6, e.point.y - 6],
     [e.point.x + 6, e.point.y + 6]

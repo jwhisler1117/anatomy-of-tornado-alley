@@ -162,6 +162,6 @@ label {
 
 /* Bold title */
 .tornado-tooltip strong {
-  font-size: 14px;
-  color: #4ade80; /* green highlight */
+  font-size: 12px;
+  color: #4aa5de; /* green highlight */
 }
