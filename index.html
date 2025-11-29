@@ -28,8 +28,8 @@
 <div class="control-group">
 
   <div class="double-slider">
-    <input type="range" id="year-start-slider" min="1950" max="2025" value="1980">
-    <input type="range" id="year-end-slider" min="1950" max="2025" value="2000">
+    <input type="range" id="year-start-slider" min="1950" max="2025" value="2020">
+    <input type="range" id="year-end-slider" min="1950" max="2025" value="2021">
     <div id="range-track"></div>
   </div>
 
@@ -40,7 +40,7 @@
       id="year-start-input"
       min="1950"
       max="2025"
-      value="1980"
+      value="2020"
     />
 
     <label for="year-end-input">To:</label>
@@ -49,13 +49,15 @@
       id="year-end-input"
       min="1950"
       max="2025"
-      value="2000"
+      value="2021"
     />
   </div>
 
   <div class="play-controls">
-    <button id="play-range-btn">▶ Play through range</button>
-    <button id="pause-range-btn" disabled>⏸ Pause</button>
+  <button id="play-range-btn">▶ Play Through Range</button>
+  <button id="pause-range-btn" disabled>⏹ Stop</button>
+</div>
+
   </div>
 
 </div>
