@@ -204,7 +204,7 @@ label {
   appearance: none;
   height: 20px;
   width: 20px;
-  background: #fb923c;
+  background: #515f8d;
   border-radius: 50%;
   border: 2px solid #fff;
   cursor: pointer;
@@ -274,4 +274,24 @@ label {
 
 #sidebar::-webkit-scrollbar-thumb:hover {
   background: #aaa;
+}
+
+.play-controls {
+  margin-top: 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.play-controls button {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background: #ffffff;
+}
+
+.play-controls button:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
