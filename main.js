@@ -755,46 +755,52 @@ function stopPlaying() {
     clearInterval(playInterval);
     playInterval = null;
   }
-  const playBtn = document.getElementById("play-btn");
-  const pauseBtn = document.getElementById("pause-btn");
+  const playBtn = document.getElementById("play-range-btn");
+  const pauseBtn = document.getElementById("pause-range-btn");
   if (playBtn && pauseBtn) {
-    playBtn.disabled = false;
-    pauseBtn.disabled = true;
+    playBtn.disabled = false;   // enable Play
+    pauseBtn.disabled = true;   // disable Pause
   }
 }
 
-function startPlayingRange() {
-  if (playInterval !== null) return;
 
-  const playBtn = document.getElementById("play-btn");
-  const pauseBtn = document.getElementById("pause-btn");
+
+
+
+function startPlayingThroughRange() {
+  if (playInterval !== null) return; // already playing
+
+  const playBtn = document.getElementById("play-range-btn");
+  const pauseBtn = document.getElementById("pause-range-btn");
   const startSlider = document.getElementById("year-start-slider");
   const endSlider = document.getElementById("year-end-slider");
+
+  if (!playBtn || !pauseBtn || !startSlider || !endSlider) return;
+
+  const range = normalizeRange(startSlider.value, endSlider.value);
+  if (!range) return;
+
+  let currentYear = range.start;
+  const endYear = range.end;
 
   playBtn.disabled = true;
   pauseBtn.disabled = false;
 
+  // Step year-by-year through the selected range
   playInterval = setInterval(() => {
-    const range = normalizeRange(startSlider.value, endSlider.value);
-    if (!range) return;
-    const windowSize = range.end - range.start;
+    setYearRange(currentYear, currentYear);  // 🔹 single-year view inside the selected range
 
-    let newStart = range.start + 1;
-    let newEnd = range.end + 1;
-
-    if (newEnd > MAX_YEAR) {
-      // wrap around while preserving window size
-      newStart = MIN_YEAR;
-      newEnd = MIN_YEAR + windowSize;
-      if (newEnd > MAX_YEAR) {
-        newEnd = MAX_YEAR;
-        newStart = MAX_YEAR - windowSize;
-      }
+    if (currentYear >= endYear) {
+      // reached the end – stop
+      stopPlaying();
+      // Optional: restore the original multi-year range:
+      // setYearRange(range.start, range.end);
+    } else {
+      currentYear++;
     }
-
-    setYearRange(newStart, newEnd);
-  }, 300);
+  }, 1000); // ms per step – tweak if you want faster/slower
 }
+
 
 // --- 6. Wire up DOM events ----------------------------------------
 
@@ -804,6 +810,8 @@ function setupControls() {
   const startInput = document.getElementById("year-start-input");
   const endInput = document.getElementById("year-end-input");
   const efContainer = document.getElementById("ef-filters");
+  const playRangeBtn = document.getElementById("play-range-btn");
+  const pauseRangeBtn = document.getElementById("pause-range-btn");
 
   // Initial range
   const initialStart = 2020;
@@ -860,6 +868,17 @@ function setupControls() {
     const range = getCurrentRange();
     if (range) applyYearRangeAndFilters(range.start, range.end);
   });
+
+  if (playRangeBtn && pauseRangeBtn) {
+    playRangeBtn.addEventListener("click", () => {
+      startPlayingThroughRange();
+    });
+
+    pauseRangeBtn.addEventListener("click", () => {
+      stopPlaying();
+    });
+  }
+
 
   const stateSelect = document.getElementById("state-select");
   const damageSelect = document.getElementById("damage-select");
