@@ -58,6 +58,16 @@ function preprocessTornadoData() {
   });
 }
 
+function formatDollarsShort(val) {
+  if (val == null || val === "null") return "Unknown";
+  const n = Number(val);
+  if (!Number.isFinite(n) || n === 0) return "None reported";
+  if (n >= 1_000_000_000) return "$" + (n / 1_000_000_000).toFixed(1) + "B";
+  if (n >= 1_000_000) return "$" + (n / 1_000_000).toFixed(1) + "M";
+  if (n >= 1_000) return "$" + (n / 1_000).toFixed(1) + "K";
+  return "$" + n.toLocaleString();
+}
+
 
 // --- 2. Load data and initialize ----------------------------------
 
@@ -134,86 +144,103 @@ map.addLayer({
 });
 
 
-    // --- Tooltip ---
-    const hoverPopup = new mapboxgl.Popup({
-      closeButton: false,
-      closeOnClick: false,
-      className: "tornado-tooltip",
-    });
+// --- Tooltip ---
+const hoverPopup = new mapboxgl.Popup({
+  closeButton: false,
+  closeOnClick: false,
+  className: "tornado-tooltip",
+  offset: [0, -10]
+});
 
-    let isHoveringTornado = false;
+let isHoveringTornado = false;
 
-    map.on("mousemove", (e) => {
-      const bbox = [
-        [e.point.x - 6, e.point.y - 6],
-        [e.point.x + 6, e.point.y + 6],
-      ];
+function safeInt(val) {
+  if (val == null || val === "null") return "Unknown";
+  const n = Number(val);
+  return Number.isFinite(n) ? n.toLocaleString() : "Unknown";
+}
 
-      const features = map.queryRenderedFeatures(bbox, {
-        layers: ["tornado-points"],
-      });
+function formatDateSafe(raw) {
+  if (!raw || raw === "NaT" || raw === "null") return "Unknown";
+  const d = new Date(raw);
+  if (isNaN(d)) return raw;
+  return d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
 
-      if (!features.length) {
-        if (isHoveringTornado) {
-          map.getCanvas().style.cursor = "";
-          hoverPopup.remove();
-          isHoveringTornado = false;
-        }
-        return;
-      }
+map.on("mousemove", (e) => {
+  const bbox = [
+    [e.point.x - 6, e.point.y - 6],
+    [e.point.x + 6, e.point.y + 6],
+  ];
 
-      const f = features[0];
-      const p = f.properties;
-      const coords = f.geometry.coordinates.slice();
+  const features = map.queryRenderedFeatures(bbox, {
+    layers: ["tornado-points"],
+  });
 
-      const efText =
-        p.ef === null || p.ef === undefined || p.ef === "null"
-          ? "Unknown"
-          : `EF${p.ef}`;
+  if (!features.length) {
+    if (isHoveringTornado) {
+      map.getCanvas().style.cursor = "";
+      hoverPopup.remove();
+      isHoveringTornado = false;
+    }
+    return;
+  }
 
-      const windText =
-        p.wind_low != null &&
-        p.wind_high != null &&
-        p.wind_low !== "null" &&
-        p.wind_high !== "null"
-          ? `${p.wind_low}–${p.wind_high} mph`
-          : "Unknown";
+  const f = features[0];
+  const p = f.properties;
+  const coords = f.geometry.coordinates.slice();
 
-      const dateText =
-        p.date && p.date !== "NaT" && p.date !== "null" ? p.date : "Unknown";
+  const efText =
+    p.ef == null || p.ef === "null" ? "Unknown" : `EF${p.ef}`;
 
-      const lengthText =
-        p.length_miles != null && p.length_miles !== "null"
-          ? `${Number(p.length_miles).toFixed(1)} mi`
-          : "Unknown";
+  const windText =
+    p.wind_low != null &&
+    p.wind_high != null &&
+    p.wind_low !== "null" &&
+    p.wind_high !== "null"
+      ? `${p.wind_low}–${p.wind_high} mph`
+      : "Unknown";
 
-      const widthText =
-        p.width_yards != null && p.width_yards !== "null"
-          ? `${Math.round(Number(p.width_yards))} yd`
-          : "Unknown";
+  const dateText = formatDateSafe(p.date);
 
-      const damageText =
-        p.damage_property != null && p.damage_property !== "null"
-          ? String(p.damage_property)
-          : "Unknown";
+  const lengthText =
+    p.length_miles != null && p.length_miles !== "null"
+      ? `${Number(p.length_miles).toFixed(1)} miles`
+      : "Unknown";
 
-      const html = `
-        <strong>${p.state}</strong><br/>
-        Date: ${dateText}<br/>
-        EF Rating: ${efText}<br/>
-        Wind Speed Range: ${windText}<br/>
-        Distance Traveled: ${lengthText}<br/>
-        Max Width: ${widthText}<br/>
-        Injuries: ${p.injuries}<br/>
-        Deaths: ${p.deaths}<br/>
-        Property Damage: ${damageText}
-      `;
+  const widthText =
+    p.width_yards != null && p.width_yards !== "null"
+      ? `${Math.round(Number(p.width_yards))} yards`
+      : "Unknown";
 
-      map.getCanvas().style.cursor = "pointer";
-      isHoveringTornado = true;
+  const injuriesText = safeInt(p.injuries);
+  const deathsText = safeInt(p.deaths);
 
-      hoverPopup.setLngLat(coords).setHTML(html).addTo(map);
-    });
+const damageText = formatDollarsShort(p.damage_usd);
+
+
+  const html = `
+    <strong>${p.state}</strong><br/>
+    Date: ${dateText}<br/>
+    EF Rating: ${efText}<br/>
+    Wind Speed Range: ${windText}<br/>
+    Distance Traveled: ${lengthText}<br/>
+    Max Width: ${widthText}<br/>
+    Injuries: ${injuriesText}<br/>
+    Deaths: ${deathsText}<br/>
+    Property Damage: ${damageText}
+  `;
+
+  map.getCanvas().style.cursor = "pointer";
+  isHoveringTornado = true;
+
+  hoverPopup.setLngLat(coords).setHTML(html).addTo(map);
+});
+
 
 function populateStateDropdown() {
   const stateSelect = document.getElementById("state-select");
